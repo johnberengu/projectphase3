@@ -1,6 +1,6 @@
 import pygame
 import os
-
+import subprocess
 from life import HealthBar, setup_health, update_health, draw_health_bars
 
 # initialize the game object
@@ -10,6 +10,14 @@ pygame.init()
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# button properties
+button_rect = pygame.Rect(SCREEN_WIDTH - 200, 20, 180, 40)
+button_color = (0, 100, 0)  
+button_text_color = (255, 255, 255)  
+button_font = pygame.font.SysFont(None, 30)
+button_text = button_font.render("Change Player", True, button_text_color)
+
 
 def load_images(folder, size=(50, 50)):
 
@@ -300,6 +308,15 @@ def display_game_over(player_name, player_kills, zombies_killed, screen):
     pygame.time.wait(4000)  # Wait for 4 second and then close game
 
 
+#check if button is clicked
+def check_button_click(pos):
+
+    if button_rect.collidepoint(pos):
+        subprocess.run(["python", "player.py"])  # run player.py
+
+button_text = button_font.render("Change Player", True, button_text_color)
+
+
 # game loop starts here
 while run:
     clock.tick(60) # timer for game loop to start
@@ -309,6 +326,10 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: # quit the game
             run = False
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            check_button_click(event.pos)  
+
 
     player.update()
 
@@ -374,9 +395,15 @@ while run:
     all_sprites = pygame.sprite.Group([player] + zombies)
     all_sprites.draw(screen)
     
-    
+
     for zombie in zombies:
         draw_health_bars(screen, player, zombie)  
+
+    # draw button
+    pygame.draw.rect(screen, button_color, button_rect)
+    screen.blit(button_text, (button_rect.x + 10, button_rect.y + 5))
+
+
 
     pygame.display.update()
 
